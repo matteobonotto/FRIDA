@@ -1,6 +1,3 @@
-![Alt text](https://github.com/matteobonotto/FRIDA/blob/master/FRIDA_logo_v0.PNG)
-
-
 # FRIDA
 routines/binaries of the FRIDA code.
 
