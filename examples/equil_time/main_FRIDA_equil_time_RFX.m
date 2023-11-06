@@ -15,7 +15,7 @@ dir_FRIDA = '../../source/routines_FRIDA/';
 
 addpath(genpath(dir_FRIDA))
 
-
+ 
 set(groot,'defaulttextinterpreter','latex');
 set(groot, 'defaultAxesTickLabelInterpreter','latex');
 set(groot, 'defaultLegendInterpreter','latex');
