@@ -3,6 +3,8 @@ routines/binaries of the FRIDA code.
 
 The FRIDA (FRee-boundary Integro-Differential Axisimmetric) code expoits a coupled Finite Element Method – Boundary Element Method (FEM-BEM) approach for the solution of the free-boundary axi-symmetric plasma equilibrium problem (i.e., the Grad-Shafranov equation).
 
+## Meshing
+FRIDA supports triagular meshes, which can be generated in several ways. However, we provide some routines to generate triangular meshes suitable for FRIDA usage. Such routines are based on the [GMSH](https://gmsh.info/) software. Up to this verison of FRIDA (v3.3), generating meshes directly via Matlab script is supported for Windows OS only. 
 
 ### Citations
 Please cite the following papers:
