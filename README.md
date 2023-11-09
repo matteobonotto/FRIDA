@@ -3,7 +3,6 @@ routines/binaries of the FRIDA code.
 
 The FRIDA (FRee-boundary Integro-Differential Axisymmetric) code exploits a coupled Finite Element Method – Boundary Element Method (FEM-BEM) approach for the solution of the free-boundary axisymmetric plasma equilibrium problem (i.e., the Grad-Shafranov equation).
 
-
 ### Citations
 Please cite the following papers:
 ```
