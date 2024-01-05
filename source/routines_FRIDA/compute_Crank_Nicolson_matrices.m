@@ -23,7 +23,7 @@ T_Ipla_eq_D = T_Ipla_eq(:,meshData_pla.ind_D);
 
 
 %%
-h_step = IE_evol.time_sim(2:end) - IE_evol.time_sim(1:end-1);
+h_step = Conductors.time_sim(2:end) - Conductors.time_sim(1:end-1);
 
 if sum(h_step)/numel(h_step) - h_step(1) > 1e-7
     warning('WARNING: non constant time steps! Choosing h_step = h_step(1).')

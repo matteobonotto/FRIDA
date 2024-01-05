@@ -47,10 +47,23 @@ set(groot, 'defaultLegendInterpreter','latex');
 %% Loading data and pre-processing
 
 %%% Load evol data
-load(['INPUT_FRIDA_evol_VI_' SETTINGS.filename_evol],'IE_evol')
+% % load(['INPUT_FRIDA_evol_VI_' SETTINGS.filename_evol],'IE_evol')
+% % Conductors   = IE_evol.Conductors;
+% % plaparameter = IE_evol.plaparameter;
 
-Conductors   = IE_evol.Conductors;
-plaparameter = IE_evol.plaparameter;
+% load equil data
+load(['INPUT_FRIDA_equil_' SETTINGS.filename_equil], ...
+    'Conductors', ...
+    'plaparameter')
+IE_evol.plaparameter = plaparameter;
+IE_evol.Conductors = Conductors;
+IE_evol.time_sim = Conductors.time_sim;
+
+% load geometry data
+load(['INPUT_FRIDA_geo_' SETTINGS.filename_geo], ...
+    'meshData_pla', ...
+    'meshData_ext')
+
 
 
 %%% Initialization of SETTINGS and INPUT
@@ -58,7 +71,7 @@ run_initialize_SETTINGS
 
 
 if SETTINGS.IS_EVOL
-    time_sim     = IE_evol.time_sim;
+    time_sim     = plaparameter.time_sim;
 end
 
 %%% Pre-processing
@@ -70,9 +83,9 @@ if SETTINGS.PREPROC == true
     time_start_preproc = tic;
     
     % load geometry
-    load(['INPUT_FRIDA_evol_VI_geo_' SETTINGS.filename_geo], ...
-        'meshData_pla', ...
-        'meshData_ext')
+%     load(['INPUT_FRIDA_evol_VI_geo_' SETTINGS.filename_geo], ...
+%         'meshData_pla', ...
+%         'meshData_ext')
     
     % run preprocessing
     run_FRIDA_evol_preprocessing
@@ -102,10 +115,10 @@ else
 end
 
 
-%% Matrix for Crank–Nicolson
+%% Matrix for Crankï¿½Nicolson
 if SETTINGS.IS_EVOL
     fprintf('\n')
-    disp('Computing matrices for Crank–Nicolson method ...')
+    disp('Computing matrices for Crankï¿½Nicolson method ...')
     
     tic
     compute_Crank_Nicolson_matrices

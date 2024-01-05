@@ -3,10 +3,6 @@ function [meshData] = fun_buildmesh_pla_FRIDA_evol(...
 
 %% Domains for meshing
 
-figure
-plot(FW(:,1),FW(:,2),'or-')
-axis equal; hold on;
-
 % resampling bc (if n_FW is defined)
 if ~isempty(n_FW)
     [FW_r,FW_z]=equispaced_stable(FW(:,1),FW(:,2),n_FW);
@@ -63,6 +59,10 @@ else
 
 end
 
+figure
+plot(FW(:,1),FW(:,2),'or-')
+axis equal; hold on;
+plot(bc(:,1),bc(:,2),'o-')
 
 %% 2D meshing with GMSH
 
@@ -157,7 +157,7 @@ ind_n_FW = intersect(ind_n_pla,ind_n_vac);
 ind_t_vac = find(type == 0);
 ind_n_in=reshape(meshData.t(ind_t_vac,:),numel(meshData.t(ind_t_vac,:)),1);
 ind_n_in=unique(ind_n_in);
-ind_n=boundary(meshData.n(ind_n_in,1),meshData.n(ind_n_in,2),0.2);
+ind_n=boundary(meshData.n(ind_n_in,1),meshData.n(ind_n_in,2),0.5);
 ind_n=ind_n_in(ind_n);
 ind_n_bc=(ind_n(1:end-1));
 
