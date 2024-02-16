@@ -18,7 +18,7 @@ EQUIL_CASE = 3;     % 00155
 % % EQUIL_CASE = 5;     % 00051
 % % EQUIL_CASE = 6;     % 00049
 
-
+    
 input_Equil ='';
 
 % % equilname=090; % ok
