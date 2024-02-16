@@ -6,6 +6,12 @@ The FRIDA (FRee-boundary Integro-Differential Axisimmetric) code expoits a coupl
 ## Meshing
 FRIDA supports triagular meshes, which can be generated in several ways. However, we provide some routines to generate triangular meshes suitable for FRIDA usage. Such routines are based on the [GMSH](https://gmsh.info/) software. Up to this verison of FRIDA (v3.3), generating meshes directly via Matlab script is supported for Windows OS only. 
 
+## Examples
+Some examples of how to setup a geometry and run FRIDA can be found in the sub-directory `examples`. The following examples are reported:
+1. static equilibrium  ...
+2. time domain equilibrium ...
+3. time domain vacuum run ...
+
 ### Citations
 Please cite the following papers:
 ```
