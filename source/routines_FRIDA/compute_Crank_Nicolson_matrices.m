@@ -20,6 +20,7 @@ vec_A             = meshData_ext.vec_A;
 
 T_Ipla_eq =meshData_pla.T_Ipla_eq;
 T_Ipla_eq_D = T_Ipla_eq(:,meshData_pla.ind_D);
+meshData_pla.T_Ipla_eq_D = T_Ipla_eq_D;
 
 
 %%
@@ -32,6 +33,7 @@ h_step = h_step(1);
 
 M_act_pas = M_VI;
 M_CS_pas = G_CS_VI_pas;
+% % meshData_ext.M_CS_pas = M_CS_pas;
 
 ind_act = (1:size(M_act_pas,2))';
 ind_CS = (ind_act(end)+1:size(M_act_pas,2)+size(M_CS_pas,2))';
@@ -60,6 +62,7 @@ C = [L_VI_inv zeros(size(L_VI_inv,1),length(ind_passive_cut))];
 D_act = -L_VI_inv*M_act_pas;
 D_pla = -L_VI_inv*M_CS_pas*T_Ipla_eq_D;
 
+meshData_ext.E = EE;
 meshData_ext.A = A;
 meshData_ext.C = C;
 meshData_ext.B_act = B_act;

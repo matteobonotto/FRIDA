@@ -178,7 +178,7 @@ SETTINGS.FIGURES = true;
 % 1 -> static plasma
 % 2 -> evol vacuum
 % 3 -> evol plasma
-SETTINGS.RUN = 2; 
+SETTINGS.RUN = 3; 
 
 %% Run FRIDA and store the results
 close all
