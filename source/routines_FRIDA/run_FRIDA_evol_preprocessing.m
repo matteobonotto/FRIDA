@@ -488,9 +488,12 @@ if SETTINGS.IS_EVOL
     meshData_ext.G_B_pickup_VI_act = G_B_pickup_VI_act;
     meshData_ext.vec_A             = vec_A;
     meshData_ext.n_cut_pas         = length(meshData_ext.ind_passive_cut);
+    meshData_ext.n_G_source        = meshData_pas.n_G_source;
+    meshData_ext.P_G_source        = meshData_pas.P_G_source;
+    meshData_ext.w_G_source        = meshData_pas.w_G_source;
     
-    else
-
+else
+    
     fprintf('\n')
     disp('Computing VI matrices ...')
     
@@ -505,7 +508,7 @@ if SETTINGS.IS_EVOL
     
     n_pas = size(G_BCs_VI_pas,2);
     meshData_ext.n_pas = n_pas;
-
+    
     meshData_ext.G_BCs_VI_act      = G_BCs_VI_act;
     meshData_ext.G_BCs_VI_pas      = G_BCs_VI_pas;
     meshData_ext.G_flux_VI_pas     = G_flux_VI_pas;

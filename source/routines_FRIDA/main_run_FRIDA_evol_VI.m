@@ -22,8 +22,8 @@ fprintf('\n\n\n')
 fprintf('   FRee-boundary Integro-Differential Axisymmetric (solver) - Time Domain\n\n')
 fprintf('   M. Bonotto, D. Abate\n')
 fprintf('   Consorzio RFX \n\n')
-fprintf('   09/2021\n')
-fprintf('   ver. 1.0\n')
+fprintf('   4/2024\n')
+fprintf('   ver. 3.3\n')
 
 fprintf('\n\n\n')
 fprintf('\n\n\n')
@@ -42,15 +42,6 @@ set(groot,'defaulttextinterpreter','latex');
 set(groot, 'defaultAxesTickLabelInterpreter','latex');
 set(groot, 'defaultLegendInterpreter','latex');
 
-
-%% RUN TYPE
-if SETTINGS.RUN == 2 || SETTINGS.RUN == 3 % evol vacuum or evol plasma
-    SETTINGS.IS_EVOL = 1;
-    n_time = length(IE_evol.time_sim);
-else
-    SETTINGS.IS_EVOL = 0;
-    n_time = 1;
-end
 
 
 %% Loading data and pre-processing
@@ -76,7 +67,17 @@ load([SETTINGS.filename_geo], ...
     'meshData_ext')
 
 
+%% RUN TYPE
+if SETTINGS.RUN == 2 || SETTINGS.RUN == 3 % evol vacuum or evol plasma
+    SETTINGS.IS_EVOL = 1;
+    n_time = length(IE_evol.time_sim);
+else
+    SETTINGS.IS_EVOL = 0;
+    n_time = 1;
+end
 
+
+%%
 %%% Initialization of SETTINGS and INPUT
 run_initialize_SETTINGS
 
@@ -140,11 +141,20 @@ end
 
 %% Run simulation 
 
-if SETTINGS.RUN == 0 || SETTINGS.RUN == 1
-    OUT = run_FRIDA_vauccm();
+if SETTINGS.RUN == 0 || SETTINGS.RUN == 2
+    OUT = run_FRIDA_vacuum(...
+        meshData_ext, ...
+        IE_evol, ...
+        Conductors, ...
+        SETTINGS);
     
 elseif SETTINGS.RUN == 1 || SETTINGS.RUN == 3
-    OUT = run_FRIDA_plasma();
+    OUT = run_FRIDA_plasma(...
+        meshData_pla, ...
+        meshData_ext, ...
+        IE_evol, ...
+        Conductors, ...
+        SETTINGS);
     
 end
 

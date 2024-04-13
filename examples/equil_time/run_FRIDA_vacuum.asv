@@ -1,27 +1,11 @@
-function OUT = run_FRIDA_plasma()
+function OUT = run_FRIDA_vacuum(...
+    meshData_ext, ...
+    IE_evol, ...
+    Conductors, ...
+    SETTINGS)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+n_time = length(IE_evol.time_sim);
+% % plaparameter = IE_evol.plaparameter;
 
 %% Output quantities
 
@@ -35,17 +19,17 @@ if SETTINGS.IS_EVOL
     end
 end
 
-Separatrix_r_TD = zeros(200,n_time);
-Separatrix_z_TD = zeros(200,n_time);
-residuo_TD = zeros(1,n_time);
-Centroid_TD = zeros(2,n_time);
-Psi_B_TD = zeros(1,n_time);
-Psi_Ax_TD = zeros(1,n_time);
-Ax_r_TD = zeros(1,n_time);
-Ax_z_TD = zeros(1,n_time);
-Psi_Centroid_TD = zeros(1,n_time);
-lambda_TD = zeros(1,n_time);
-ii_freeB_TD = zeros(1,n_time);
+% % Separatrix_r_TD = zeros(200,n_time);
+% % Separatrix_z_TD = zeros(200,n_time);
+% % residuo_TD = zeros(1,n_time);
+% % Centroid_TD = zeros(2,n_time);
+% % Psi_B_TD = zeros(1,n_time);
+% % Psi_Ax_TD = zeros(1,n_time);
+% % Ax_r_TD = zeros(1,n_time);
+% % Ax_z_TD = zeros(1,n_time);
+% % Psi_Centroid_TD = zeros(1,n_time);
+% % lambda_TD = zeros(1,n_time);
+% % ii_freeB_TD = zeros(1,n_time);
 
 if any(strcmp('flux_loops',fieldnames(SETTINGS)))
     Meas_fluxloops_TD = zeros(size(SETTINGS.flux_loops,1),n_time);
@@ -60,9 +44,9 @@ if SETTINGS.IS_EVOL
     v_gap_TD = zeros(meshData_ext.n_cut_pas,n_time);
 end
 
-Psi_TD = zeros(meshData_pla.nn,n_time);
-I_pla_TD = zeros(meshData_pla.nn,n_time);
-J_pla_TD = zeros(meshData_pla.n_Gauss*meshData_pla.nt,n_time);
+% % Psi_TD = zeros(meshData_pla.nn,n_time);
+% % I_pla_TD = zeros(meshData_pla.nn,n_time);
+% % J_pla_TD = zeros(meshData_pla.n_Gauss*meshData_pla.nt,n_time);
 
 
 
@@ -73,12 +57,224 @@ J_pla_TD = zeros(meshData_pla.n_Gauss*meshData_pla.nt,n_time);
 Conductors_t0 = Conductors;
 Conductors_t0.Currents = Conductors_t0.Currents(:,1);
 
-plaparameter_t0.Centroid = plaparameter.Centroid;
-plaparameter_t0.R_0      = plaparameter.R_0(1);
-plaparameter_t0.beta_0   = plaparameter.beta_0(1);
-plaparameter_t0.alpha_M  = plaparameter.alpha_M(1);
-plaparameter_t0.alpha_N  = plaparameter.alpha_N(1);
-plaparameter_t0.Ipla     = plaparameter.Ipla(1);
+plaparameter_t0 = [];
+
+% % plaparameter_t0.Centroid = plaparameter.Centroid;
+% % plaparameter_t0.R_0      = plaparameter.R_0(1);
+% % plaparameter_t0.beta_0   = plaparameter.beta_0(1);
+% % plaparameter_t0.alpha_M  = plaparameter.alpha_M(1);
+% % plaparameter_t0.alpha_N  = plaparameter.alpha_N(1);
+% % plaparameter_t0.Ipla     = plaparameter.Ipla(1);
+
+
+if ~any(strcmp('RR',fieldnames(SETTINGS)))
+    Rplot=[min(meshData_ext.n(:,1))...
+        max(meshData_ext.n(:,1))]+[-0.3 0.3];
+    Zplot=[min(meshData_ext.n(:,2))...
+        max(meshData_ext.n(:,2))]+[-0.3 0.3];
+
+    rgrid=linspace(Rplot(1),Rplot(2),100);
+    zgrid=linspace(Zplot(1),Zplot(2),100);
+
+    [RR,ZZ] = meshgrid(rgrid,zgrid);
+
+    SETTINGS.RR = RR;
+    SETTINGS.ZZ = ZZ;
+end
+    
+    
+if SETTINGS.RUN == 0 
+    %% VACUUM STATIC
+    if any(strcmp('flux_loops',fieldnames(SETTINGS)))
+        Meas_fluxloops_TD_t0 = meshData_ext.G_flux_VI_act*Conductors_t0.Currents;
+        OUT.Meas_fluxloops = Meas_fluxloops_TD_t0;
+    end
+    
+    if any(strcmp('pickup',fieldnames(SETTINGS)))
+        Meas_pickup_TD_t0 = meshData_ext.G_B_pickup_VI_act*Conductors_t0.Currents;
+        OUT.Meas_pickup = Meas_pickup_TD_t0;
+
+    end
+    
+    tri_act = meshData_ext.t;
+    nodes_act = meshData_ext.n;
+    keyreg_act = meshData_ext.type;
+    ind_act = meshData_ext.ind_act;
+    n_act = length(ind_act);
+    
+    degree_G_source = 8;
+    
+    G_flux_VI_act =fun_G_flux_active_VI_stable_fast(n_act, ...
+        tri_act, ...
+        nodes_act, ...
+        ind_act, ...
+        keyreg_act, ...
+        degree_G_source, ...
+        RR(:), ...
+        ZZ(:));
+    
+    OUT.Psi_RR = reshape(...
+        G_flux_VI_act*Conductors_t0.Currents,...
+        size(SETTINGS.RR,1),...
+        size(SETTINGS.ZZ,1));
+    
+    [G_Br_VI_act,G_Bz_VI_act] =fun_G_BrBz_active_VI_stable_fast(n_act, ...
+        tri_act, ...
+        nodes_act, ...
+        ind_act, ...
+        keyreg_act, ...
+        degree_G_source, ...
+        RR(:), ...
+        ZZ(:));
+    
+    OUT.Br_RR = reshape(...
+        G_Br_VI_act*Conductors_t0.Currents,...
+        size(SETTINGS.RR,1),...
+        size(SETTINGS.ZZ,1));
+    
+    OUT.Br_ZZ = reshape(...
+        G_Bz_VI_act*Conductors_t0.Currents,...
+        size(SETTINGS.RR,1),...
+        size(SETTINGS.ZZ,1));
+    
+    OUT.RR = SETTINGS.RR;
+    OUT.ZZ = SETTINGS.ZZ;
+
+else
+    %% VACUUM EVOL
+    uu = Conductors.Currents;
+    time_sim = Conductors.time_sim;
+    n_cut_pas = meshData_ext.n_cut_pas;
+    
+    x_t0 = -meshData_ext.A\meshData_ext.B_act*uu(:,1);
+    tic
+    xx_VI = fun_DAE_Crank_Nicolson_State_Space(...
+        time_sim,...
+        x_t0,...
+        uu,...
+        meshData_ext.E,...
+        meshData_ext.A,...
+        meshData_ext.B_act);
+    toc
+
+    a_VI = xx_VI(1:end-n_cut_pas,:);
+    v_gap = xx_VI(end-n_cut_pas+1:end,:);
+
+    jc = meshData_ext.C(:,1:end-n_cut_pas)*a_VI + meshData_ext.D_act*uu;
+    
+    % %     OUT.a_VI = a_VI;
+    OUT.v_gap_TD = v_gap;
+    OUT.J_c_TD = jc;
+    
+    %%% Compute measures (if any)
+    if any(strcmp('flux_loops',fieldnames(SETTINGS)))
+        Meas_fluxloops_TD = meshData_ext.G_flux_VI_act*Conductors_t0.Currents + ...
+            meshData_ext.G_flux_VI_pas*jc;
+        OUT.Meas_fluxloops_TD = Meas_fluxloops_TD;
+    end
+    
+    if any(strcmp('pickup',fieldnames(SETTINGS)))
+        Meas_pickup_TD = meshData_ext.G_B_pickup_VI_act*Conductors_t0.Currents + ...
+            meshData_ext.G_B_pickup_VI_pas*jc;
+        OUT.Meas_pickup_TD = Meas_pickup_TD;
+
+    end
+    
+    
+    %%% Compute Psi, Br,Bz on a structured grid
+    tri_act = meshData_ext.t;
+    nodes_act = meshData_ext.n;
+    keyreg_act = meshData_ext.type;
+    ind_act = meshData_ext.ind_act;
+    n_act = length(ind_act);
+    
+    meshData_pas = fun_get_meshData_pas(meshData_ext);
+    tri = meshData_pas.t;
+    nodes = meshData_pas.n;
+    
+    degree_G_source = 4;
+    nodes_matrix = [nodes(tri(:,1),:) ...
+        nodes(tri(:,2),:) ...
+        nodes(tri(:,3),:)];
+    P1 = nodes_matrix(:,[1 2]);
+    P2 = nodes_matrix(:,[3 4]);
+    P3 = nodes_matrix(:,[5 6]);
+    [w_G_source,P_G_source,n_G_source] = fun_Gauss_points_triangle_Dunavant(P1,P2,P3,degree_G_source);
+    
+    %%% Psi
+    G_flux_VI_act =fun_G_flux_active_VI_stable_fast(n_act, ...
+        tri_act, ...
+        nodes_act, ...
+        ind_act, ...
+        keyreg_act, ...
+        degree_G_source, ...
+        RR(:), ...
+        ZZ(:));
+    
+    G_flux_VI_pas = fun_G_flux_passive_VI_stable_fast(tri, ...
+        nodes, ...
+        N_order, ...
+        degree_G_source, ...
+        n_G_source, ...
+        P_G_source,...
+        RR(:), ...
+        ZZ(:));
+    
+    OUT.Psi_RR = zeros(size(SETTINGS.RR,1),size(SETTINGS.ZZ,2),n_time);
+    for i = 1:n_time
+        OUT.Psi_RR(:,:,i) = reshape(...
+        G_flux_VI_act*Conductors.Currents(:,i) + G_flux_VI_pas*OUT.J_c_TD(:,i),...
+        size(SETTINGS.RR,1),...
+        size(SETTINGS.ZZ,1));
+    end
+    
+    %%% Br, Bz
+    [G_Br_VI_pas,G_Bz_VI_pas] = fun_G_BrBz_passive_VI_stable_fast(tri, ...
+        nodes, ...
+        N_order, ...
+        degree_G_source, ...
+        n_G_source, ...
+        P_G_source,...
+        RR(:), ...
+        ZZ(:));
+    
+    [G_Br_VI_act,G_Bz_VI_act] =fun_G_BrBz_active_VI_stable_fast(n_act, ...
+        tri_act, ...
+        nodes_act, ...
+        ind_act, ...
+        keyreg_act, ...
+        degree_G_source, ...
+        RR(:), ...
+        ZZ(:));
+    
+    OUT.Br_RR = zeros(size(SETTINGS.RR,1),size(SETTINGS.ZZ,2),n_time);
+    OUT.Br_ZZ = zeros(size(SETTINGS.RR,1),size(SETTINGS.ZZ,2),n_time);
+    for i = 1:n_time
+        OUT.Br_RR(:,:,i) = reshape(...
+            G_flux_VI_act*Conductors.Currents(:,i) + G_Br_VI_pas*OUT.J_c_TD(:,i),...
+            size(SETTINGS.RR,1),...
+            size(SETTINGS.ZZ,1));
+        OUT.Br_ZZ(:,:,i) = reshape(...
+            G_flux_VI_act*Conductors.Currents(:,i) + G_flux_VI_pas*OUT.J_c_TD(:,i),...
+            size(SETTINGS.RR,1),...
+            size(SETTINGS.ZZ,1));
+    end
+    OUT.Br_RR = reshape(...
+        G_Br_VI_act*Conductors_t0.Currents + G_Br_VI_pas*OUT.J_c_TD,...
+        size(SETTINGS.RR,1),...
+        size(SETTINGS.ZZ,1));
+    
+    OUT.Br_ZZ = reshape(...
+        G_Bz_VI_act*Conductors_t0.Currents + G_Bz_VI_pas*OUT.J_c_TD,...
+        size(SETTINGS.RR,1),...
+        size(SETTINGS.ZZ,1));
+    
+    OUT.RR = SETTINGS.RR;
+    OUT.ZZ = SETTINGS.ZZ;
+    
+end
+
+%% VACUUM EVOL
 
 
 if SETTINGS.ii_START == 1
@@ -109,56 +305,58 @@ if SETTINGS.ii_START == 1
     
     %%% Compute eqiulibrium at t0
     %%% STATIC VACUUM
-    if SETTINGS.RUN == 0
-        [OUTPUT_FRIDA_t0] = run_FRIDA_vacuum_t0(...
-            meshData_pla,...
-            meshData_ext,...
-            Conductors_t0,...
-            SETTINGS);
-        
-        Psi_TD(:,1) = 2*pi*solk_t0.Psi; % TOTAL poloidal flux
-        I_pla_TD(:,1) = solk_t0.Iphi;
-        J_pla_TD(:,1) = solk_t0.Jphi;
-        Separatrix_r_TD(:,1) = solk_t0.Separatrix(:,1);
-        Separatrix_z_TD(:,1) = solk_t0.Separatrix(:,2);
-        residuo_TD(1) = OUTPUT_FRIDA_t0.solk1.residuo_norm;
-        Centroid_TD(:,1) = [OUTPUT_FRIDA_t0.solk1.Centroid_RR OUTPUT_FRIDA_t0.solk1.Centroid_ZZ].';
-        Psi_B_TD(:,1) = 2*pi*solk_t0.Psi_B; % TOTAL poloidal flux
-        Psi_Ax_TD(:,1) = 2*pi*solk_t0.Psi_a; % TOTAL poloidal flux
-        Psi_Centroid_TD(:,1) = 2*pi*solk_t0.Centroid_Psi; % TOTAL poloidal flux
-        lambda_TD(:,1) = solk_t0.lambda;
-        Ax_r_TD(:,1) = OUTPUT_FRIDA_t0.solk1.Axis_RR;
-        Ax_z_TD(:,1) = OUTPUT_FRIDA_t0.solk1.Axis_ZZ;
-        ii_freeB_TD(1) = OUTPUT_FRIDA_t0.ii_freeB;
-        
-        if any(strcmp('flux_loops',fieldnames(SETTINGS)))
-            Meas_fluxloops_TD_t0 = meshData_ext.G_flux_VI_act*Conductors_t0.Currents + ...
-                meshData_pla.G_flux_loops_pla*OUTPUT_FRIDA_t0.solk1.Iphi + ...
-                meshData_ext.G_flux_VI_pas*SETTINGS.J_c_t0;
-            
-            Meas_fluxloops_TD(:,1) = Meas_fluxloops_TD_t0;
-        end
-        
-        if any(strcmp('pickup',fieldnames(SETTINGS)))
-            Meas_pickup_TD_t0 = meshData_ext.G_B_pickup_VI_act*Conductors_t0.Currents + ...
-                meshData_pla.G_pickup_pla*OUTPUT_FRIDA_t0.solk1.Iphi + ...
-                meshData_ext.G_B_pickup_VI_pas*SETTINGS.J_c_t0;
-            Meas_pickup_TD(:,1) = Meas_pickup_TD_t0;
-        end
-        
+    % %     if SETTINGS.RUN == 0
+    % %     [OUTPUT_FRIDA_t0] = run_FRIDA_vacuum_t0(...
+    % %         meshData_pla,...
+    % %         meshData_ext,...
+    % %         Conductors_t0,...
+    % %         SETTINGS);
+    % %
+    % %     Psi_TD(:,1) = 2*pi*solk_t0.Psi; % TOTAL poloidal flux
+    % %     I_pla_TD(:,1) = solk_t0.Iphi;
+    % %     J_pla_TD(:,1) = solk_t0.Jphi;
+    % %     Separatrix_r_TD(:,1) = solk_t0.Separatrix(:,1);
+    % %     Separatrix_z_TD(:,1) = solk_t0.Separatrix(:,2);
+    % %     residuo_TD(1) = OUTPUT_FRIDA_t0.solk1.residuo_norm;
+    % %     Centroid_TD(:,1) = [OUTPUT_FRIDA_t0.solk1.Centroid_RR OUTPUT_FRIDA_t0.solk1.Centroid_ZZ].';
+    % %     Psi_B_TD(:,1) = 2*pi*solk_t0.Psi_B; % TOTAL poloidal flux
+    % %     Psi_Ax_TD(:,1) = 2*pi*solk_t0.Psi_a; % TOTAL poloidal flux
+    % %     Psi_Centroid_TD(:,1) = 2*pi*solk_t0.Centroid_Psi; % TOTAL poloidal flux
+    % %     lambda_TD(:,1) = solk_t0.lambda;
+    % %     Ax_r_TD(:,1) = OUTPUT_FRIDA_t0.solk1.Axis_RR;
+    % %     Ax_z_TD(:,1) = OUTPUT_FRIDA_t0.solk1.Axis_ZZ;
+    % %     ii_freeB_TD(1) = OUTPUT_FRIDA_t0.ii_freeB;
+    % %
+    % %     if any(strcmp('flux_loops',fieldnames(SETTINGS)))
+    % %         Meas_fluxloops_TD_t0 = meshData_ext.G_flux_VI_act*Conductors_t0.Currents + ...
+    % %             meshData_pla.G_flux_loops_pla*OUTPUT_FRIDA_t0.solk1.Iphi + ...
+    % %             meshData_ext.G_flux_VI_pas*SETTINGS.J_c_t0;
+    % %
+    % %         Meas_fluxloops_TD(:,1) = Meas_fluxloops_TD_t0;
+    % %     end
+    % %
+    % %     if any(strcmp('pickup',fieldnames(SETTINGS)))
+    % %         Meas_pickup_TD_t0 = meshData_ext.G_B_pickup_VI_act*Conductors_t0.Currents + ...
+    % %             meshData_pla.G_pickup_pla*OUTPUT_FRIDA_t0.solk1.Iphi + ...
+    % %             meshData_ext.G_B_pickup_VI_pas*SETTINGS.J_c_t0;
+    % %         Meas_pickup_TD(:,1) = Meas_pickup_TD_t0;
+    % %     end
+    
     %%% STSTIC WITH PLASMA
-    elseif SETTINGS.RUN == 1
-        [OUTPUT_FRIDA_t0] = run_FRIDA_evol_t0(...
-            meshData_pla,...
-            meshData_ext,...
-            Conductors_t0,...
-            plaparameter_t0,...
-            SETTINGS);
-        
-        % %     openfig kjsbdfskjbfds
-        % %     plot(OUTPUT_FRIDA_t0.solk1.Separatrix(:,1),OUTPUT_FRIDA_t0.solk1.Separatrix(:,2),'-*k');
-        
-        %%% Post-processing
+    % %     if SETTINGS.RUN == 1
+    meshData_pla = [];
+    [OUTPUT_FRIDA_t0] = run_FRIDA_evol_t0(...
+        meshData_pla,...
+        meshData_ext,...
+        Conductors_t0,...
+        plaparameter_t0,...
+        SETTINGS);
+    
+    % %     openfig kjsbdfskjbfds
+    % %     plot(OUTPUT_FRIDA_t0.solk1.Separatrix(:,1),OUTPUT_FRIDA_t0.solk1.Separatrix(:,2),'-*k');
+    
+    %%% Post-processing
+    if SETTINGS.RUN == 3 % evol sim
         solk_t0 = OUTPUT_FRIDA_t0.solk1;
         solk_t0.xx_th = solk_t0.xx_k;
         
@@ -180,15 +378,27 @@ if SETTINGS.ii_START == 1
         Ax_z_TD(:,1) = OUTPUT_FRIDA_t0.solk1.Axis_ZZ;
         ii_freeB_TD(1) = OUTPUT_FRIDA_t0.ii_freeB;
         
-        if any(strcmp('flux_loops',fieldnames(SETTINGS)))
+    end
+    if any(strcmp('flux_loops',fieldnames(SETTINGS)))
+        Meas_fluxloops_TD_t0 = meshData_ext.G_flux_VI_act*Conductors_t0.Currents + ...
+            meshData_pla.G_flux_loops_pla*OUTPUT_FRIDA_t0.solk1.Iphi + ...
+            meshData_ext.G_flux_VI_pas*SETTINGS.J_c_t0;
+        OUTPUT_FRIDA_t0.solk1.Meas_fluxloops = Meas_fluxloops_TD_t0;
+        
+        if SETTINGS.RUN == 3
             Meas_fluxloops_TD_t0 = meshData_ext.G_flux_VI_act*Conductors_t0.Currents + ...
                 meshData_pla.G_flux_loops_pla*OUTPUT_FRIDA_t0.solk1.Iphi + ...
                 meshData_ext.G_flux_VI_pas*SETTINGS.J_c_t0;
-            
             Meas_fluxloops_TD(:,1) = Meas_fluxloops_TD_t0;
         end
+    end
+    
+    if any(strcmp('pickup',fieldnames(SETTINGS)))
+        Meas_pickup_TD_t0 = meshData_ext.G_B_pickup_VI_act*Conductors_t0.Currents + ...
+            meshData_pla.G_pickup_pla*OUTPUT_FRIDA_t0.solk1.Iphi;
+        OUTPUT_FRIDA_t0.solk1.Meas_pickup = Meas_pickup_TD_t0;
         
-        if any(strcmp('pickup',fieldnames(SETTINGS)))
+        if SETTINGS.RUN == 3
             Meas_pickup_TD_t0 = meshData_ext.G_B_pickup_VI_act*Conductors_t0.Currents + ...
                 meshData_pla.G_pickup_pla*OUTPUT_FRIDA_t0.solk1.Iphi + ...
                 meshData_ext.G_B_pickup_VI_pas*SETTINGS.J_c_t0;
@@ -228,16 +438,19 @@ if SETTINGS.IS_EVOL
     
     
     lambda_Ipla_th = solk_old.Iphi(meshData_pla.ind_D);
-    a_pas_t0 = L_VI*solk_old.J_c_th + ...
-        M_act_pas*Conductors_t0.Currents + ...
-        M_CS_pas*T_Ipla_eq_D*lambda_Ipla_th;
+    a_pas_t0 = meshData_ext.L_VI*solk_old.J_c_th + ...
+        meshData_ext.M_VI*Conductors_t0.Currents + ...
+        meshData_ext.G_CS_VI_pas*meshData_pla.T_Ipla_eq_D*lambda_Ipla_th;
     
     xx_DAE_t0 = [a_pas_t0; solk_old.v_gap];
     solk_old.xx_DAE_old = xx_DAE_t0;
     
     J_c_th = solk_old.J_c_th;
     
-    if isfield(solk_old,'xx_k'); solk_old.xx_th = solk_old.xx_k; solk_old = rmfield(solk_old,'xx_k'); end
+    if isfield(solk_old,'xx_k')
+        solk_old.xx_th = solk_old.xx_k;
+        solk_old = rmfield(solk_old,'xx_k');
+    end
     
     SETTINGS.VAC_METHOD = 3;
     SETTINGS.FIRST_SOLUTION = true;
@@ -288,14 +501,14 @@ if SETTINGS.IS_EVOL
         
         
         try
-
+            
             solk_old_save = solk_old;
             if isfield(solk_old,'LU')
                 solk_old = rmfield(solk_old,'LU');
             end
             filename_save = sprintf('./temp_out/input_ii_%i.mat',ii_CN-1);
             solk_old = solk_old_save;
-
+            
             [OUT_th] = run_FRIDA_TD_CN(meshData_pla,... % CN = Crank Nicolson
                 meshData_ext,...
                 plaparameter_th,...
@@ -426,7 +639,7 @@ if SETTINGS.ii_START > 1
         Ax_z_TD(:,ii_CN)         = solk_old.Axis_ZZ;
         
         
-        Conductors_th.Currents     = IE_evol.Conductors.Currents(:,ii);%.*IE_evol.Conductors.Nturns(:,2);
+        Conductors_th.Currents = IE_evol.Conductors.Currents(:,ii);%.*IE_evol.Conductors.Nturns(:,2);
         
         if any(strcmp('flux_loops',fieldnames(SETTINGS)))
             Meas_fluxloops_TD_th = meshData_ext.G_flux_VI_act*Conductors_th.Currents + ...
@@ -450,33 +663,41 @@ end
 
 
 %%%
-n_time_new = numel(find(Ax_r_TD ~= 0));
-ii_time_new = 1:n_time_new;
-
-OUT.time_sim          = time_sim(ii_time_new);
-OUT.Conductors        = Conductors;
-OUT.IE_evol           = IE_evol;
-
-OUT.Separatrix_r_TD   = Separatrix_r_TD(:,ii_time_new);
-OUT.Separatrix_z_TD   = Separatrix_z_TD(:,ii_time_new);
-OUT.residuo_TD        = residuo_TD(ii_time_new);
-OUT.Centroid_TD       = Centroid_TD(:,ii_time_new);
-OUT.J_c_TD            = J_c_TD(:,ii_time_new);
-OUT.v_gap_TD          = v_gap_TD(:,ii_time_new);
-OUT.Psi_TD            = Psi_TD(:,ii_time_new);
-OUT.Psi_B_TD          = Psi_B_TD(ii_time_new);
-OUT.Psi_Ax_TD         = Psi_Ax_TD(ii_time_new);
-OUT.Ax_r_TD           = Ax_r_TD(ii_time_new);
-OUT.Ax_z_TD           = Ax_z_TD(ii_time_new);
-OUT.Psi_Centroid_TD   = Psi_Centroid_TD(ii_time_new);
-OUT.I_pla_TD          = I_pla_TD(:,ii_time_new);
-OUT.J_pla_TD          = J_pla_TD(:,ii_time_new);
-OUT.lambda_TD         = lambda_TD(ii_time_new);
-OUT.Meas_fluxloops_TD = Meas_fluxloops_TD(:,ii_time_new);
-OUT.Meas_pickup_TD    = Meas_pickup_TD(:,ii_time_new);
-
-OUT.time_CN           = time_CN;
-OUT.ii_freeB_TD       = ii_freeB_TD;
+if SETTINGS.IS_EVOL % evol sim
+    
+    n_time_new = numel(find(Ax_r_TD ~= 0));
+    ii_time_new = 1:n_time_new;
+    
+    OUT.time_sim          = IE_evol.time_sim(ii_time_new);
+    OUT.Conductors        = Conductors;
+    OUT.IE_evol           = IE_evol;
+    
+    OUT.Separatrix_r_TD   = Separatrix_r_TD(:,ii_time_new);
+    OUT.Separatrix_z_TD   = Separatrix_z_TD(:,ii_time_new);
+    OUT.residuo_TD        = residuo_TD(ii_time_new);
+    OUT.Centroid_TD       = Centroid_TD(:,ii_time_new);
+    OUT.J_c_TD            = J_c_TD(:,ii_time_new);
+    OUT.v_gap_TD          = v_gap_TD(:,ii_time_new);
+    OUT.Psi_TD            = Psi_TD(:,ii_time_new);
+    OUT.Psi_B_TD          = Psi_B_TD(ii_time_new);
+    OUT.Psi_Ax_TD         = Psi_Ax_TD(ii_time_new);
+    OUT.Ax_r_TD           = Ax_r_TD(ii_time_new);
+    OUT.Ax_z_TD           = Ax_z_TD(ii_time_new);
+    OUT.Psi_Centroid_TD   = Psi_Centroid_TD(ii_time_new);
+    OUT.I_pla_TD          = I_pla_TD(:,ii_time_new);
+    OUT.J_pla_TD          = J_pla_TD(:,ii_time_new);
+    OUT.lambda_TD         = lambda_TD(ii_time_new);
+    OUT.Meas_fluxloops_TD = Meas_fluxloops_TD(:,ii_time_new);
+    OUT.Meas_pickup_TD    = Meas_pickup_TD(:,ii_time_new);
+    
+    OUT.time_CN           = time_CN;
+    OUT.ii_freeB_TD       = ii_freeB_TD;
+    
+else % static sim
+    
+    OUT = OUTPUT_FRIDA_t0.solk1;
+    
+end
 
 
 % % save OUT OUT
