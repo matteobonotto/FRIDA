@@ -5,9 +5,15 @@ writeGMSH(filename,GEOMETRY);
 
 %% MESH THE GEOMETRY USING GMSH;
 
-command_dos = sprintf('%s/AutoMESH_ver_2/gmsh -2 %s.geo', dir_FRIDA, filename);
+if ismac
+    command_dos = sprintf('gmsh -2 %s.geo', filename);
+else
+    command_dos = sprintf('%s/AutoMESH_ver_2/gmsh -2 %s.geo', dir_FRIDA, filename);
+end
 
 dos(command_dos);
+% save('mesh_geo', 'p','t')
+
 
 %% READ MESH
 [p,e,t]=readGMSH(filename);
