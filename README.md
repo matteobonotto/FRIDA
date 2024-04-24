@@ -19,7 +19,8 @@ Please cite the following papers:
   pages={27--59},
   year={2022}
 }
-
+```
+```
 @article{bonotto2023efficient,
   title={Efficient Numerical Solution of Coupled Axisymmetric Plasma Equilibrium and Eddy Current Problems},
   author={Bonotto, Matteo and Abate, Domenico and Bettini, Paolo and Iaiunese, Antonio and Isernia, Nicola and Villone, Fabio},
@@ -29,4 +30,4 @@ Please cite the following papers:
   year={2023},
   publisher={IEEE}
 }
-
+```
