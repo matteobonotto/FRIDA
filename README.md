@@ -4,7 +4,7 @@ routines/binaries of the FRIDA code.
 The FRIDA (FRee-boundary Integro-Differential Axisimmetric) code expoits a coupled Finite Element Method – Boundary Element Method (FEM-BEM) approach for the solution of the free-boundary axi-symmetric plasma equilibrium problem (i.e., the Grad-Shafranov equation).
 
 ## Compiling mex functions
-
+A list of compatible compiler can be found at these links (Mac)[https://it.mathworks.com/support/requirements/supported-compilers-mac.html]
 ## Examples
 
 ## Citations
