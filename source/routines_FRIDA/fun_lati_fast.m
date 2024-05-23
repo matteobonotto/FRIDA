@@ -28,7 +28,7 @@ if LATIBORDO==1
     bb=sort(t_choosen(:,[2 3]),2);
     cc=sort(t_choosen(:,[3 1]),2);
     % %         tic
-    parfor i=1:size(lati,1)
+    for i=1:size(lati,1) % NOTE: parfor only in the mex version
         lati_i=lati(i,:);
         ind1=find(ismember(aa,lati_i,'rows')==1);
         ind2=find(ismember(bb,lati_i,'rows')==1);

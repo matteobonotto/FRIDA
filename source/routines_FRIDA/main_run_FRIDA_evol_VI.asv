@@ -22,8 +22,8 @@ fprintf('\n\n\n')
 fprintf('   FRee-boundary Integro-Differential Axisymmetric (solver) - Time Domain\n\n')
 fprintf('   M. Bonotto, D. Abate\n')
 fprintf('   Consorzio RFX \n\n')
-fprintf('   09/2021\n')
-fprintf('   ver. 1.0\n')
+fprintf('   4/2024\n')
+fprintf('   ver. 3.3\n')
 
 fprintf('\n\n\n')
 fprintf('\n\n\n')
@@ -43,15 +43,6 @@ set(groot, 'defaultAxesTickLabelInterpreter','latex');
 set(groot, 'defaultLegendInterpreter','latex');
 
 
-%% RUN TYPE
-if SETTINGS.RUN == 2 || SETTINGS.RUN == 3 % evol vacuum or evol plasma
-    SETTINGS.IS_EVOL = 1;
-    n_time = length(IE_evol.time_sim);
-else
-    SETTINGS.IS_EVOL = 0;
-    n_time = 1;
-end
-
 
 %% Loading data and pre-processing
 
@@ -62,21 +53,41 @@ end
 
 % load equil data
 % % load(['./data_run_FRIDA/INPUT_FRIDA_equil_' SETTINGS.filename_equil], ...
-load(SETTINGS.filename_equil, ...
-    'Conductors', ...
-    'plaparameter')
-IE_evol.plaparameter = plaparameter;
-IE_evol.Conductors = Conductors;
-IE_evol.time_sim = Conductors.time_sim;
+load(['./data_in_FRIDA/INPUT_FRIDA_equil_', SETTINGS.filename, '.mat'], ...
+    'IE_evol')
+plaparameter = IE_evol.plaparameter;
+Conductors = IE_evol.Conductors;
+% % IE_evol.plaparameter = plaparameter;
+% % IE_evol.Conductors = Conductors;
+% % IE_evol.time_sim = Conductors.time_sim;
 
 % load geometry data
 % % load(['./data_run_FRIDA/INPUT_FRIDA_geo_' SETTINGS.filename_geo], ...
-load([SETTINGS.filename_geo], ...
+load(['./data_in_FRIDA/INPUT_FRIDA_geo_', SETTINGS.filename, '.mat'], ...
     'meshData_pla', ...
-    'meshData_ext')
+    'meshData', ...
+    'sensors')
+meshData_ext = meshData;
+if isfield(sensors, 'pickup')
+    SETTINGS.pickup = sensors.pickup;
+end
+if isfield(sensors, 'pickup')
+    SETTINGS.flux_loops = sensors.flux_loops;
+end
 
 
 
+%% RUN TYPE
+if SETTINGS.RUN == 2 || SETTINGS.RUN == 3 % evol vacuum or evol plasma
+    SETTINGS.IS_EVOL = 1;
+    n_time = length(IE_evol.time_sim);
+else
+    SETTINGS.IS_EVOL = 0;
+    n_time = 1;
+end
+
+
+%%
 %%% Initialization of SETTINGS and INPUT
 run_initialize_SETTINGS
 
@@ -115,9 +126,16 @@ else
     fprintf('==============================================\n')
     fprintf('*** SKIPPING PRE-PROCESSING *** \n')
     
-    load(['./data_run_FRIDA/INPUT_FRIDA_evol_VI_geo_preproc_' SETTINGS.filename_geo], ...
-        'meshData_pla', ...
-        'meshData_ext')
+    if SETTINGS.IS_EVOL
+        load(['./data_in_FRIDA/INPUT_FRIDA_geo_preproc_', SETTINGS.filename, '.mat'], ...
+            'meshData_pla', ...
+            'meshData_ext',...
+            'meshData_pas')
+    else
+        load(['./data_in_FRIDA/INPUT_FRIDA_geo_preproc_', SETTINGS.filename, '.mat'], ...
+            'meshData_pla', ...
+            'meshData_ext')
+    end
     
     fprintf('\n')
     fprintf('==============================================\n')
@@ -140,12 +158,20 @@ end
 
 %% Run simulation 
 
-if SETTINGS.RUN == 0 || SETTINGS.RUN == 1
-    OUT = run_FRIDA_vauccm();
+if SETTINGS.RUN == 0 || SETTINGS.RUN == 2 % Vacuum static || Evol
+    OUT = run_FRIDA_vacuum(...
+        meshData_ext, ...
+        IE_evol, ...
+        Conductors, ...
+        SETTINGS);
     
-elseif3 == 1 || SETTINGS.RUN == 3
+elseif SETTINGS.RUN == 1 || SETTINGS.RUN == 3 % Plasma static || Evol
     OUT = run_FRIDA_plasma(...
-        );
+        meshData_pla, ...
+        meshData_ext, ...
+        IE_evol, ...
+        Conductors, ...
+        SETTINGS);
     
 end
 

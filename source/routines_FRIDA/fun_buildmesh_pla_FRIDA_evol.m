@@ -168,7 +168,7 @@ plot(meshData.n(ind_n_bc,1),meshData.n(ind_n_bc,2),'or','LineWidth',2)
 
 
 
-%% vercots normal to FW (for limiter evaluation)
+%% vectors normal to FW (for limiter evaluation)
 
 
 [FW_r,FW_z]=equispaced_stable(FW(:,1),FW(:,2),10000);

@@ -1,4 +1,4 @@
-function [Green_pla_flux_loops] = fun_Green_pla_fil_flux_loops(meshData_loc,Psi_sens,SETTINGS)
+function [Green_pla_flux_loops] = fun_Green_pla_fil_flux_loops(meshData_loc,Psi_sens,SETTINGS,OPT_PARALLEL)
 
 if SETTINGS.RUN_MEX_ROUTINE == false
     

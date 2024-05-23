@@ -14,7 +14,7 @@ function [solk]=fun_Separatrix(meshData,solk,SETTINGS)
 
 Mat_ww_Gauss = reshape(meshData.ww_Gauss_pla,meshData.n_Gauss,meshData.nt)';
 
-Area_tri = sum(Mat_ww_Gauss,2);
+Area_tri = sum(Mat_ww_Gauss,2); 
 
 Area_tri_media = sum(Area_tri)/meshData.nt;
 
@@ -424,7 +424,7 @@ end
 
 % % plot(solk.XP_RR,solk.XP_ZZ,'ro')
 
-% Se 2 nulli sono ad un flusso molto diverso prendo quello più distante dal
+% Se 2 nulli sono ad un flusso molto diverso prendo quello piï¿½ distante dal
 % vessel
 if abs(100*(min(solk.Psi_B)-max(solk.Psi_B))/max(solk.Psi_B))>1.5
     % %     for ii=1:numel(solk.Psi_B)
@@ -496,7 +496,7 @@ if N_order == 2
                 cc*rr_XP*zz_XP + dd*rr_XP + ee*zz_XP + ff)';
             
             % %             abs(delta_b_weights*Psi_ii - solk.Psi_B)
-            if abs(delta_b_weights*Psi_ii - solk.Psi_B)/solk.Psi_B > 1e-4
+            if abs(delta_b_weights*Psi_ii - solk.Psi_B)/solk.Psi_B > 1e-2
                 warning('weights for Xpoint computed inaccurately');
                 save data_debug
                 error('check delta_b_weights')

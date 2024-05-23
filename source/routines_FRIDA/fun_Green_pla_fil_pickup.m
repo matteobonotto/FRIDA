@@ -1,4 +1,4 @@
-function Green_pla_pickup = fun_Green_pla_fil_pickup(meshData_loc,B_sens,SETTINGS)
+function Green_pla_pickup = fun_Green_pla_fil_pickup(meshData_loc,B_sens,SETTINGS, OPT_PARALLEL)
 
 %%%
 npt_source = size(meshData_loc.n,1);

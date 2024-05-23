@@ -253,11 +253,11 @@ disp('Computing Green matrix plasma -> probes ...')
 
 tic
 if any(strcmp('flux_loops',fieldnames(SETTINGS)))
-    G_flux_loops_pla = fun_Green_pla_fil_flux_loops(meshData_pla,SETTINGS.flux_loops,SETTINGS);
+    G_flux_loops_pla = fun_Green_pla_fil_flux_loops(meshData_pla,SETTINGS.flux_loops,SETTINGS,OPT_PARALLEL);
 end
 
 if any(strcmp('pickup',fieldnames(SETTINGS)))
-    G_pickup_pla = fun_Green_pla_fil_pickup(meshData_pla,SETTINGS.pickup,SETTINGS);
+    G_pickup_pla = fun_Green_pla_fil_pickup(meshData_pla,SETTINGS.pickup,SETTINGS,OPT_PARALLEL);
 end
 toc
 
@@ -525,19 +525,14 @@ fprintf('\n')
 fprintf('Saving data after preprocessing ... \n')
 
 if SETTINGS.IS_EVOL
-    save(SETTINGS.filename_geo, ...
+    save(['./data_in_FRIDA/INPUT_FRIDA_geo_preproc_', SETTINGS.filename, '.mat'], ...
         'meshData_pla', ...
         'meshData_ext',...
         'meshData_pas')
 else
-    % %     if SETTINGS.RUN == 0
-    save(SETTINGS.filename_geo, ...
+    save(['./data_in_FRIDA/INPUT_FRIDA_geo_preproc_', SETTINGS.filename, '.mat'], ...
         'meshData_pla', ...
         'meshData_ext')
-    % %     elseif SETTINGS.RUN == 1
-    % %         save(SETTINGS.filename_geo, ...
-    % %     'meshData_ext')
-    % %     end
 end
 
 pause(.01);
