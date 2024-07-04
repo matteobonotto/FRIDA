@@ -114,8 +114,11 @@ degree_G_source = 12;
 [w_G_target,P_G_target,n_G_target] = fun_Gauss_points_triangle_Dunavant(P1,P2,P3,degree_G_target);
 [w_G_source,P_G_source,n_G_source] = fun_Gauss_points_triangle_Dunavant(P1,P2,P3,degree_G_source);
 
-
-[MatInd_nodes_tri] = fun_MatInd_nodes_tri_fast_mex(meshData_pas.N_order,meshData_pas.t,meshData_pas.nn);
+if SETTINGS.RUN_MEX_ROUTINE
+    [MatInd_nodes_tri] = fun_MatInd_nodes_tri_fast_mex(meshData_pas.N_order,meshData_pas.t,meshData_pas.nn);
+else
+    [MatInd_nodes_tri] = fun_MatInd_nodes_tri(meshData_pas.N_order,meshData_pas.t,meshData_pas.nn);
+end
 
 tri_act = meshData_ext.t;
 nodes_act = meshData_ext.n;

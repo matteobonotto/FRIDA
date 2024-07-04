@@ -18,12 +18,21 @@ if ~any(strcmp('e_interface',fieldnames(meshData_ext)))
     t_chosen = meshData_ext.t(ind_t_chosen,:);
     % %     t_choosen=meshData_ext.t((sum(meshData_ext.type.' == meshData_ext.ind_act) ~= 0).',:);
     tic;
-    [~,lati_bordo_act]=fun_lati_fast_mex(t_chosen,1);
+    if SETTINGS.RUN_MEX_ROUTINE
+        [~,lati_bordo_act]=fun_lati_fast_mex(t_chosen,1);
+    else
+        [~,lati_bordo_act]=fun_lati_fast(t_chosen,1);
+    end
     
     ind_t_chosen = fun_vec_find(meshData_ext.type,meshData_ext.ind_pas);
     t_chosen = meshData_ext.t(ind_t_chosen,:);
     % %     t_chosen=meshData_ext.t((sum(meshData_ext.type.' == meshData_ext.ind_pas) ~= 0).',:);
-    [~,lati_bordo_pas]=fun_lati_fast_mex(t_chosen,1);
+    if SETTINGS.RUN_MEX_ROUTINE
+        [~,lati_bordo_pas]=fun_lati_fast_mex(t_chosen,1);
+    else
+        [~,lati_bordo_pas]=fun_lati_fast(t_chosen,1);
+    end
+    
     toc
     
     meshData_ext.e_interface = unique([lati_bordo_act; lati_bordo_pas],'rows');
@@ -250,6 +259,7 @@ toc
 %% Green matrix plasma -> probes
 fprintf('\n')
 disp('Computing Green matrix plasma -> probes ...')
+OPT_PARALLEL = false;
 
 tic
 if any(strcmp('flux_loops',fieldnames(SETTINGS)))

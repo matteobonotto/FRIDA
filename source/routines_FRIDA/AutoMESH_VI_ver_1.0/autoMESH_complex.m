@@ -12,12 +12,15 @@ writeGMSH(filename,GEOMETRY);
 
 command_dos = sprintf('gmsh -2 -order %i -format m %s.geo', order, filename);
 
-if ispc
-    dos(command_dos);
-elseif ismac
-    error('autoMESH for Mac is not implemented yet')
+if ismac
+    setenv('PATH', getenv('PATH')+":/opt/homebrew/bin/")
+    message = ['autoMESH: if uding MAC add gmsh dir ', ...
+        'like this -> ', ...
+        'setenv("PATH", getenv("PATH")+":/opt/homebrew/bin/")'];
+    warning(message)
 end
 
+dos(command_dos);
 
 %% READ MESH
 
