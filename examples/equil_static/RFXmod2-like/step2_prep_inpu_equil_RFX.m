@@ -72,7 +72,7 @@ load(['./data_in_FRIDA/', 'tmp_INPUT_FRIDA_geo.mat'])
 %% Load scenario data
 n_time_new=1;
 time_sim = 0.15;
-flagRFP=1;
+flagRFP=0;
 
 if flagRFP == 1
     qq = load([dir_equil, '28906.mat']);
